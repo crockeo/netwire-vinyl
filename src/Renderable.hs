@@ -16,6 +16,11 @@ class Renderable a where
 -- | A generic render type.
 data Render = forall a. Renderable a => Render a
 
+-- | A @'Renderable'@ instance for @'Render'@ so that after a type has been
+--   wrapped, it can still be used as a @'Renderable'@ elsewhere in the code.
+instance Renderable Render where
+  render (Render a) = render a
+
 -- | A do-composable list of render calls.
 data RendersT a = RendersT [Render] a
 
@@ -42,3 +47,8 @@ instance Monad RendersT where
   (RendersT l a) >>= fn =
     let (RendersT l' a') = fn a in
       RendersT (l ++ l') a'
+
+-- | Adding a @'Renderable'@ instance to @'RendersT'@ so that after composition
+--   it may be used to render very easily.
+instance Renderable (RendersT a) where
+  render (RendersT l _) = mapM_ render l

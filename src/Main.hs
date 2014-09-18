@@ -6,6 +6,10 @@ import Graphics.Rendering.OpenGL
 import Graphics.UI.GLFW as GLFW
 import Data.IORef
 
+-------------------
+-- Local Imports --
+import Network
+
 ----------
 -- Code --
 
@@ -43,6 +47,6 @@ main = do
   windowCloseCallback $= makeWindowCloseCallback closedRef
   windowSizeCallback  $= makeWindowSizeCallback
 
-  -- HOOK UP TO NETWORK
+  runNetwork closedRef
 
   closeWindow

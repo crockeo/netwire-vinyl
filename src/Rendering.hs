@@ -1,51 +1,67 @@
 {-# LANGUAGE DataKinds, TypeOperators #-}
 module Rendering where
 
-import Control.Applicative
-import Control.Lens ((+~))
-import Data.Foldable (foldMap, traverse_)
-import Data.Vinyl
-import Data.Vinyl.Universe ((:::), SField(..))
-import Graphics.GLUtil
+--------------------
+-- Global Imports --
 import Graphics.Rendering.OpenGL
+import Control.Applicative
+import Data.Vinyl.Universe
 import Graphics.VinylGL
-import Linear (V2(..), _x, M33)
-import System.FilePath ((</>))
+import Graphics.GLUtil
+import Data.Foldable
+import Linear.Matrix
+import Data.Vinyl
+import Linear.V2
 
--- A record each drawing function will receive.
+----------
+-- Code --
+
+-- | The data -- specifically the Camera -- that is inputed to the rendering
+--   function upon every call.
 type AppInfo = PlainFieldRec '["cam" ::: M33 GLfloat]
--- Our vertices will have position and texture coordinates.
+
+-- | Defining a vertex coordinate to use in GLSL
 type Pos = "vertexCoord" ::: V2 GLfloat
+
+-- | Defining a texture coordinate to use in GLSL
 type Tex = "texCoord"    ::: V2 GLfloat
 
+-- | Defining the vertex coordinate instance.
 pos :: SField Pos
 pos = SField
 
+-- | Defining the texture coordinate instance.
 tex :: SField Tex
 tex = SField
--}
 
 -- Compute a textured vertex record for each input vertex.
 tileTex :: [[V2 GLfloat]] -> [PlainFieldRec [Pos,Tex]]
-tileTex = foldMap (flip (zipWith (<+>)) (cycle coords) . map (pos =:))
+tileTex =
+  foldMap (flip (zipWith (<+>)) (cycle coords) . map (pos =:))
   where coords = map (tex =:) $ V2 <$> [0,1] <*> [0,1]
 
--- Load a list of textures from the art directory. Set each texture to
--- use nearest-neighbor filtering.
-loadTextures :: [FilePath] -> IO [TextureObject]
-loadTextures = fmap (either error id . sequence) . mapM aux
-  where aux f = do img <- readTexture ("res" </> f)
-                   traverse_ (const texFilter) img
-                   return img
-        texFilter = do textureFilter Texture2D $= ((Nearest, Nothing), Nearest)
-                       texture2DWrap $= (Repeated, ClampToEdge)
+-- | Loading a single texture from a file.
+loadTexture' :: FilePath -> IO TextureObject
+loadTexture' path = do
+  img <- either error id <$> (readTexture $ "res/" ++ path)
 
+  textureFilter Texture2D $= ((Nearest, Nothing), Nearest)
+  texture2DWrap $= (Repeated, ClampToEdge)
+
+  return img
+
+-- | Loading a number of textures from a number of files.
+loadTextures :: [FilePath] -> IO [TextureObject]
+loadTextures = mapM loadTexture'
+
+-- | Generating a function to render the crate.
 renderCrate :: IO (V2 Float -> AppInfo -> IO ())
 renderCrate = do
   blend $= Enabled
   blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
 
-  [crate] <- loadTextures ["crate.png"]
+  crate <- loadTexture' "crate.png"
+
   s <- simpleShaderProgram "res/game2d.vert" "res/game2d.frag"
   setUniforms s (texSampler =: 0)
 

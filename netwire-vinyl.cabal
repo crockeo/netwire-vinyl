@@ -22,6 +22,7 @@ executable netwire-vinyl
                ,       GLFW     == 0.5.2.2
                ,       GLUtil   == 0.8.1
                ,       vinyl-gl == 0.2.1
+               ,       vinyl    == 0.4.3
                ,       OpenGL
 
   hs-source-dirs:      src/

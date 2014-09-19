@@ -4,6 +4,7 @@ module Assets ( AssetLoad (..)
               , loadTexture
               , loadShaderProgram
               , performAssetLoads
+              , (!)
               ) where
 
 --------------------
@@ -11,6 +12,7 @@ module Assets ( AssetLoad (..)
 import Graphics.GLUtil hiding (loadTexture, loadShaderProgram)
 import qualified Data.Map.Strict as Map
 import Graphics.Rendering.OpenGL
+import Data.Map.Strict ((!))
 import Control.Monad
 import Data.Monoid
 

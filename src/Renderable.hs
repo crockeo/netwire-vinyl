@@ -1,10 +1,6 @@
 {-# LANGUAGE ExistentialQuantification #-}
 module Renderable where
 
---------------------
--- Global Imports --
-import Control.Applicative
-
 -------------------
 -- Local Imports --
 import Assets

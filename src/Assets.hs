@@ -8,9 +8,9 @@ module Assets ( AssetLoad (..)
 
 --------------------
 -- Global Imports --
+import Graphics.GLUtil hiding (loadTexture, loadShaderProgram)
 import qualified Data.Map.Strict as Map
 import Graphics.Rendering.OpenGL
-import Graphics.GLUtil
 import Control.Monad
 import Data.Monoid
 

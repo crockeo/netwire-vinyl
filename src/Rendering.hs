@@ -40,45 +40,20 @@ tileTex =
   foldMap (flip (zipWith (<+>)) (cycle coords) . map (pos =:))
   where coords = map (tex =:) $ V2 <$> [0,1] <*> [0,1]
 
--- | Loading a single texture from a file.
-loadTexture' :: FilePath -> IO TextureObject
-loadTexture' path = do
-  img <- either error id <$> (readTexture $ "res/" ++ path)
+-- | Rendering a textured quad.
+renderTexturedQuad :: TextureObject -> ShaderProgram -> AppInfo -> V2 Float -> V2 Float -> IO ()
+renderTexturedQuad t sh i p s = do
+  let (V2 x y) = fmap realToFrac p
+      (V2 w h) = fmap realToFrac s
 
-  textureFilter Texture2D $= ((Nearest, Nothing), Nearest)
-  texture2DWrap $= (Repeated, ClampToEdge)
+  verts <- bufferVertices $ tileTex [ V2 <$> [x - w, x + w] <*> [y - h, y + h] ]
+  eb    <- bufferIndices indices
+  vao   <- makeVAO $ do
+    enableVertices' sh verts
+    bindVertices verts
+    bindBuffer ElementArrayBuffer $= Just eb
 
-  return img
-
--- | Loading a number of textures from a number of files.
-loadTextures :: [FilePath] -> IO [TextureObject]
-loadTextures = mapM loadTexture'
-
--- | Generating a function to render the crate.
-renderCrate :: IO (V2 Float -> AppInfo -> IO ())
-renderCrate = do
-  blend $= Enabled
-  blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
-
-  crate <- loadTexture' "crate.png"
-
-  s <- simpleShaderProgram "res/game2d.vert" "res/game2d.frag"
-  setUniforms s (texSampler =: 0)
-
-  return $ \p ai -> do
-    let (V2 x y) = fmap realToFrac p
-    verts <- bufferVertices $ tileTex [ V2 <$> [x - size, x + size] <*> [y - size, y + size] ]
-    eb    <- bufferIndices indices
-    vao   <- makeVAO $ do
-      enableVertices' s verts
-      bindVertices verts
-      bindBuffer ElementArrayBuffer $= Just eb
-
-    currentProgram $= Just (program s)
-    setUniforms s ai
-    withVAO vao . withTextures2D [crate] $ drawIndexedTris 2
-
-  where texSampler = SField :: SField ("tex" ::: GLint)
-        indices    = take 6 $
-                       foldMap (flip map [0,1,2,2,1,3] . (+)) [0,4..]
-        size       = 0.1
+  currentProgram $= Just (program sh)
+  setUniforms sh i
+  withVAO vao . withTextures2D [t] $ drawIndexedTris 2
+  where indices = take 6 $ foldMap (flip map [0, 1, 2, 2, 1, 3] . (+)) [0, 4..]

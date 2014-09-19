@@ -3,6 +3,7 @@ module World where
 
 --------------------
 -- Global Imports --
+import Graphics.Rendering.OpenGL hiding (position)
 import Graphics.UI.GLFW as GLFW
 import Prelude hiding ((.))
 import Control.Wire
@@ -23,16 +24,18 @@ import Input
 data World = World AppInfo (V2 Float) (V2 Float)
 
 instance Renderable World where
-  render assets (World info p s) =
+  render assets (World info p s) = do
+    (Size w' h') <- get windowSize
+    let si = V2 (realToFrac w') (realToFrac h') :: V2 Float
     renderTexturedQuad (textures assets ! "crate.png")
                        (shaders  assets ! "game2d"   )
                        info
-                       p
-                       s
+                       (p / si)
+                       (s / si)
 
 -- | The speed of the crate.
 speed :: Float
-speed = 1
+speed = 512
 
 -- | Moving in a given direction.
 direction :: Enum k => k -> k -> Wire s () IO a Float
@@ -48,11 +51,11 @@ biDirection = liftA2 V2 (direction (CharKey 'A') (CharKey 'D'))
 
 -- | The position of the crate.
 position :: HasTime t s => Wire s () IO (V2 Float) (V2 Float)
-position = integral 0.5
+position = integral 320
 
 -- | The size of the quad.
 size :: Wire s () IO a (V2 Float)
-size = pure $ pure 0.2
+size = pure $ pure 128
 
 -- | Constructing the final world.
 worldWire :: HasTime t s => Wire s () IO AppInfo World

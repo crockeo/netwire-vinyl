@@ -13,16 +13,22 @@ import Linear.V2
 -- Local Imports --
 import Renderable
 import Rendering
+import Assets
 import Input
 
 ----------
 -- Code --
 
 -- | The world data type.
-data World = World AppInfo (V2 Float)
+data World = World AppInfo (V2 Float) (V2 Float)
 
-instance Show World where
-  show (World _ p) = "World " ++ show p
+instance Renderable World where
+  render assets (World info p s) =
+    renderTexturedQuad (textures assets ! "crate.png")
+                       (shaders  assets ! "game2d"   )
+                       info
+                       p
+                       s
 
 -- | The speed of the crate.
 speed :: Float
@@ -44,11 +50,16 @@ biDirection = liftA2 V2 (direction (CharKey 'A') (CharKey 'D'))
 position :: HasTime t s => Wire s () IO (V2 Float) (V2 Float)
 position = integral 0.5
 
+-- | The size of the quad.
+size :: Wire s () IO a (V2 Float)
+size = pure $ pure 0.2
+
 -- | Constructing the final world.
 worldWire :: HasTime t s => Wire s () IO AppInfo World
 worldWire =
   proc ai -> do
     bd <- biDirection -< Nothing
     p  <- position    -< bd
+    s  <- size        -< undefined
 
-    returnA -< World ai p
+    returnA -< World ai p s

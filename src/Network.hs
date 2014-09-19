@@ -9,20 +9,26 @@ import Data.Vinyl.Universe
 import Control.Wire
 import Data.IORef
 import Data.Vinyl
-import Linear.V2
 
 -------------------
 -- Local Imports --
 import Renderable
 import Rendering
+import Assets
 import World
 
 ----------
 -- Code --
 
+-- | Loading the project's assets.
+loadAssets :: AssetLoads
+loadAssets = do
+  loadTexture       "crate.png"
+  loadShaderProgram "game2d"
+
 -- | The backend to running the network.
-runNetwork' :: HasTime t s => (V2 Float -> AppInfo -> IO ()) -> IORef Bool -> Camera GLfloat -> Session IO s -> Wire s e IO AppInfo World -> IO ()
-runNetwork' renderFunc closedRef cam session wire = do
+runNetwork' :: HasTime t s => IORef Bool -> Assets -> Camera GLfloat -> Session IO s -> Wire s e IO AppInfo World -> IO ()
+runNetwork' closedRef assets cam session wire = do
   closed <- readIORef closedRef
   if closed
     then return ()
@@ -32,16 +38,16 @@ runNetwork' renderFunc closedRef cam session wire = do
 
       case wt of
         Left  _     -> return ()
-        Right (World ai p) -> do
+        Right world -> do
           clear [ColorBuffer, DepthBuffer]
-          renderFunc p ai
+          render assets world
           swapBuffers
 
-          runNetwork' renderFunc closedRef cam session' wire'
+          runNetwork' closedRef assets cam session' wire'
 
 -- | The frontend of running the network. Really just passes everything along
 --   to @'runNetwork''@ where all the work gets done.
 runNetwork :: IORef Bool -> IO ()
 runNetwork closedRef = do
-  rc <- renderCrate
-  runNetwork' rc closedRef camera2D clockSession_ worldWire
+  assets <- performAssetLoads loadAssets
+  runNetwork' closedRef assets camera2D clockSession_ worldWire

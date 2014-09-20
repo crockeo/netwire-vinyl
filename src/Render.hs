@@ -1,7 +1,14 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
-module Render where
+module Render ( AppInfo
+              , Pos
+              , Tex
+              , renderTexturedQuad
+              , Renderable (..)
+              , Render (..)
+              , Renders
+              ) where
 
 --------------------
 -- Global Imports --

@@ -28,6 +28,10 @@ glRenderHeight = fromIntegral renderHeight
 renderSize :: V2 Int
 renderSize = V2 renderWidth renderHeight
 
+-- | A float version of @'renderSize'@.
+renderSizeF :: V2 Float
+renderSizeF = fmap fromIntegral renderSize
+
 -- | The width of the grid.
 gridWidth :: Int
 gridWidth = 20

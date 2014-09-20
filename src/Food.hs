@@ -10,6 +10,10 @@ import System.Random
 import Control.Wire
 import Linear.V2
 
+-------------------
+-- Local Imports --
+import Render
+
 ----------
 -- Code --
 

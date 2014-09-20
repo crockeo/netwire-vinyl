@@ -9,6 +9,7 @@ import Data.IORef
 -------------------
 -- Local Imports --
 import Network
+import Config
 
 ----------
 -- Code --
@@ -28,7 +29,7 @@ makeWindowSizeCallback s = viewport $= (Position 0 0, s)
 main :: IO ()
 main = do
   initialize
-  openWindow (Size 640 480) [DisplayRGBBits 8 8 8, DisplayAlphaBits 8, DisplayDepthBits 24] Window
+  openWindow (Size glRenderWidth glRenderHeight) [DisplayRGBBits 8 8 8, DisplayAlphaBits 8, DisplayDepthBits 24] Window
   windowTitle $= "netwire-vinyl"
 
   closedRef <- newIORef False

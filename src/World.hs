@@ -3,7 +3,6 @@ module World where
 
 --------------------
 -- Global Imports --
-import Graphics.Rendering.OpenGL hiding (position)
 import Graphics.UI.GLFW as GLFW
 import Prelude hiding ((.))
 import Control.Wire
@@ -15,6 +14,7 @@ import Linear.V2
 import Renderable
 import Rendering
 import Assets
+import Config
 import Input
 
 ----------
@@ -24,14 +24,12 @@ import Input
 data World = World AppInfo (V2 Float) (V2 Float)
 
 instance Renderable World where
-  render assets (World info p s) = do
-    (Size w' h') <- get windowSize
-    let si = V2 (realToFrac w') (realToFrac h') :: V2 Float
+  render assets (World info p s) =
     renderTexturedQuad (textures assets ! "crate.png")
                        (shaders  assets ! "game2d"   )
                        info
-                       (p / si)
-                       (s / si)
+                       (p / renderSizeF)
+                       (s / renderSizeF)
 
 -- | The speed of the crate.
 speed :: Float

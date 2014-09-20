@@ -82,11 +82,18 @@ score :: FoodType -> Int
 score = fromEnum
 
 -- | The back end of the food.
-food :: Food -> Wire s () IO Bool Food
-food f =
-  mkGen_ $ \regen -> do
+food' :: Food -> Wire s () IO Bool Food
+food' f =
+  mkGenN $ \regen -> do
     f' <- if regen
             then randomFood
             else return f
 
-    f' `seq` return $ Right f'
+    f `seq` return (Right f, food' f')
+
+-- | The front-end of the food.
+food :: Wire s () IO Bool Food
+food =
+  mkGenN $ \_ -> do
+    f <- randomFood
+    return (Right f, food' f)

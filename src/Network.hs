@@ -12,9 +12,8 @@ import Data.Vinyl
 
 -------------------
 -- Local Imports --
-import Renderable
-import Rendering
 import Assets
+import Render
 import World
 
 ----------
@@ -34,13 +33,13 @@ runNetwork' closedRef assets cam session wire = do
     then return ()
     else do
       (st, session') <- stepSession session
-      (wt, wire'   ) <- stepWire wire st $ Right $ SField =: camMatrix cam
+      (wt, wire'   ) <- stepWire wire st $ Right undefined
 
       case wt of
         Left  _     -> return ()
         Right world -> do
           clear [ColorBuffer, DepthBuffer]
-          render assets world
+          render (SField =: camMatrix cam) assets world
           swapBuffers
 
           runNetwork' closedRef assets cam session' wire'

@@ -1,9 +1,11 @@
-{-# LANGUAGE DataKinds, TypeOperators #-}
-module Rendering where
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds #-}
+module Render where
 
 --------------------
 -- Global Imports --
-import Graphics.Rendering.OpenGL
+import Graphics.Rendering.OpenGL hiding (Render)
 import Control.Applicative
 import Data.Vinyl.Universe
 import Graphics.VinylGL
@@ -13,11 +15,15 @@ import Linear.Matrix
 import Data.Vinyl
 import Linear.V2
 
+-------------------
+-- Local Imports --
+import Assets
+import DoList
+
 ----------
 -- Code --
 
--- | The data -- specifically the Camera -- that is inputed to the rendering
---   function upon every call.
+-- | The matrix of the camera being used to observe the scene.
 type AppInfo = PlainFieldRec '["cam" ::: M33 GLfloat]
 
 -- | Defining a vertex coordinate to use in GLSL
@@ -57,3 +63,19 @@ renderTexturedQuad t sh i p s = do
   setUniforms sh i
   withVAO vao . withTextures2D [t] $ drawIndexedTris 2
   where indices = take 6 $ foldMap (flip map [0, 1, 2, 2, 1, 3] . (+)) [0, 4..]
+
+-- | A typeclass to define that a type can be rendered. Should only be used to
+--   perform render calls.
+class Renderable a where
+  render :: AppInfo -> Assets -> a -> IO ()
+
+-- | A generic render type.
+data Render = forall a. Renderable a => Render a
+
+-- | A @'Renderable'@ instance for @'Render'@ so that after a type has been
+--   wrapped, it can still be used as a @'Renderable'@ elsewhere in the code.
+instance Renderable Render where
+  render appinfo assets (Render a) = render appinfo assets a
+
+-- | Being able to concatenate @'Render'@ calls through do-notation.
+type Renders = DoList [Render]

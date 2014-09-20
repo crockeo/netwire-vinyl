@@ -35,6 +35,10 @@ instance Enum FoodType where
 -- | The position of the food.
 data Food = Food FoodType (V2 Int)
 
+-- | Rendering the Food.
+instance Renderable Food where
+  render _ _ = error "Cannot render the food."
+
 -- | Generating a random @'FoodType'@.
 randomFoodType :: IO FoodType
 randomFoodType = do

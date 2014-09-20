@@ -10,24 +10,23 @@ import FRP.Netwire
 import Linear.V2
 
 -------------------
--- Local Imports --
-import Renderable
-import Rendering
+-- Local Imports --x
 import Assets
 import Config
+import Render
 import Input
 
 ----------
 -- Code --
 
 -- | The world data type.
-data World = World AppInfo (V2 Float) (V2 Float)
+data World = World (V2 Float) (V2 Float)
 
 instance Renderable World where
-  render assets (World info p s) =
+  render appinfo assets (World p s) =
     renderTexturedQuad (textures assets ! "crate.png")
                        (shaders  assets ! "game2d"   )
-                       info
+                       appinfo
                        (p / renderSizeF)
                        (s / renderSizeF)
 
@@ -56,11 +55,11 @@ size :: Wire s () IO a (V2 Float)
 size = pure $ pure 128
 
 -- | Constructing the final world.
-worldWire :: HasTime t s => Wire s () IO AppInfo World
+worldWire :: HasTime t s => Wire s () IO a World
 worldWire =
-  proc ai -> do
+  proc _ -> do
     bd <- biDirection -< Nothing
     p  <- position    -< bd
     s  <- size        -< undefined
 
-    returnA -< World ai p s
+    returnA -< World p s

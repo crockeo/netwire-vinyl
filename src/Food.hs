@@ -10,6 +10,12 @@ import System.Random
 import Control.Wire
 import Linear.V2
 
+-------------------
+-- Local Imports --
+import Assets
+import Config
+import Render
+
 ----------
 -- Code --
 
@@ -37,7 +43,17 @@ data Food = Food FoodType (V2 Int)
 
 -- | Rendering the Food.
 instance Renderable Food where
-  render _ _ = error "Cannot render the food."
+  render appinfo assets (Food t p) =
+    renderTexturedQuad (textures assets ! toPath t)
+                       (shaders  assets ! "game2d")
+                       appinfo
+                       (fmap realToFrac p * blockSize)
+                       blockSize
+    where toPath :: FoodType -> String
+          toPath Apple  = "apple.png"
+          toPath Cherry = "cherry.png"
+          toPath Lemon  = "lemon.png"
+          toPath Mouse  = "mouse.png"
 
 -- | Generating a random @'FoodType'@.
 randomFoodType :: IO FoodType

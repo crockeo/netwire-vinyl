@@ -26,6 +26,7 @@ import Linear.V2
 -- Local Imports --
 import Assets
 import DoList
+import Config
 
 ----------
 -- Code --
@@ -56,8 +57,8 @@ tileTex =
 -- | Rendering a textured quad.
 renderTexturedQuad :: TextureObject -> ShaderProgram -> AppInfo -> V2 Float -> V2 Float -> IO ()
 renderTexturedQuad t sh i p s = do
-  let (V2 x y) = fmap realToFrac p
-      (V2 w h) = fmap realToFrac s
+  let (V2 x y) = fmap realToFrac $ p / renderSizeF
+      (V2 w h) = fmap realToFrac $ s / renderSizeF
 
   verts <- bufferVertices $ tileTex [ V2 <$> [x - w, x + w] <*> [y - h, y + h] ]
   eb    <- bufferIndices indices

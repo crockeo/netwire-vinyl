@@ -44,9 +44,9 @@ updateGame session wire worldRef closedRef = do
       (wt, wire'   ) <- stepWire wire st $ Right undefined
 
       case wt of
-        Left  _     -> writeIORef closedRef True
+        Left  _     -> atomicWriteIORef closedRef True
         Right world -> do
-          writeIORef worldRef $ Just world
+          atomicWriteIORef worldRef $ Just world
           threadDelay 1000000
           updateGame session' wire' worldRef closedRef
 

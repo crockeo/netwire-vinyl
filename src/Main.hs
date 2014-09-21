@@ -34,7 +34,7 @@ main = do
 
   closedRef <- newIORef False
   windowCloseCallback $= do
-    writeIORef closedRef True
+    atomicWriteIORef closedRef True
     return True
 
   windowCloseCallback $= makeWindowCloseCallback closedRef

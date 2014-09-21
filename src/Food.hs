@@ -48,7 +48,7 @@ instance Renderable Food where
                        (shaders  assets ! "game2d")
                        appinfo
                        (fmap realToFrac p * blockSize)
-                       blockSize
+                       (blockSize / 2)
     where toPath :: FoodType -> String
           toPath Apple  = "apple.png"
           toPath Cherry = "cherry.png"

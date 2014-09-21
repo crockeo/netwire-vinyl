@@ -29,7 +29,7 @@ instance Renderable Snake where
                          (shaders  assets ! "game2d"   )
                          appinfo
                          (fmap fromIntegral p * blockSize)
-                         blockSize
+                         (blockSize / 2)
 
 -- | Making the initial snake.
 makeSnake :: V2 Int -> Snake

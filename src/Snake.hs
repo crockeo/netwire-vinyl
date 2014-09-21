@@ -25,7 +25,6 @@ newtype Snake = Snake [V2 Int]
 instance Renderable Snake where
   render appinfo assets (Snake l) =
     forM_ l $ \p -> do
-      print p
       renderTexturedQuad (textures assets ! "white.png")
                          (shaders  assets ! "game2d"   )
                          appinfo

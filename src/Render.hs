@@ -52,7 +52,7 @@ tex = SField
 tileTex :: [[V2 GLfloat]] -> [PlainFieldRec [Pos,Tex]]
 tileTex =
   foldMap (flip (zipWith (<+>)) (cycle coords) . map (pos =:))
-  where coords = map (tex =:) $ V2 <$> [0,1] <*> [0,1]
+  where coords = map (tex =:) $ V2 <$> [0, 1] <*> [1, 0]
 
 -- | Rendering a textured quad.
 renderTexturedQuad :: TextureObject -> ShaderProgram -> AppInfo -> V2 Float -> V2 Float -> IO ()

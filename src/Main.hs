@@ -40,6 +40,9 @@ main = do
   windowCloseCallback $= makeWindowCloseCallback closedRef
   windowSizeCallback  $= makeWindowSizeCallback
 
+  blend     $= Enabled
+  blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
+
   runNetwork closedRef
 
   closeWindow

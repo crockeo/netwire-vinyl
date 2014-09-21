@@ -22,11 +22,14 @@ import World
 -- | Loading the project's assets.
 loadAssets :: AssetLoads
 loadAssets = do
-  loadTexture       "apple.png"
-  loadTexture       "cherry.png"
-  loadTexture       "crate.png"
-  loadTexture       "lemon.png"
-  loadTexture       "mouse.png"
+  loadTexture "white.png"
+  loadTexture "apple.png"
+  loadTexture "cherry.png"
+  loadTexture "crate.png"
+  loadTexture "lemon.png"
+  loadTexture "mouse.png"
+  loadTexture "white.png"
+
   loadShaderProgram "game2d"
 
 -- | The backend to running the network.

@@ -44,14 +44,18 @@ gridHeight = 20
 gridSize :: V2 Int
 gridSize = V2 gridWidth gridHeight
 
--- The width of a block in the grid.
+-- | The width of a block in the grid.
 blockWidth :: Float
 blockWidth = (fromIntegral renderWidth) / (fromIntegral gridWidth)
 
--- The height of a block in the grid.
+-- | The height of a block in the grid.
 blockHeight :: Float
 blockHeight = (fromIntegral renderHeight) / (fromIntegral gridHeight)
 
--- The size of a block in the grid.
+-- | The size of a block in the grid.
 blockSize :: V2 Float
 blockSize = V2 blockWidth blockHeight
+
+-- | The time between updating the game (in milliseconds).
+updateStep :: Float
+updateStep = 1000

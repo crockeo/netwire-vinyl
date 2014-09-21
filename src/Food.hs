@@ -88,12 +88,11 @@ food' f =
     f' <- if regen
             then randomFood
             else return f
-
-    f `seq` return (Right f, food' f')
+    f' `seq` return (Right f, food' f')
 
 -- | The front-end of the food.
 food :: Wire s () IO Bool Food
 food =
   mkGenN $ \_ -> do
     f <- randomFood
-    return (Right f, food' f)
+    f `seq` return (Right f, food' f)

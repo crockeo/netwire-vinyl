@@ -1,16 +1,17 @@
-module Snake ( Snake
+module Snake ( Snake (..)
              , snake
              ) where
 
 --------------------
 -- Global Imports --
-import Graphics.Rendering.OpenGL
+import Control.Monad (forM_)
 import Prelude hiding ((.))
 import Control.Wire
 import Linear.V2
 
 -------------------
 -- Local Imports --
+import Assets
 import Config
 import Render
 
@@ -22,21 +23,21 @@ newtype Snake = Snake [V2 Int]
 
 -- | Allowing the @'Snake'@ to be rendered generically.
 instance Renderable Snake where
-  render _ _ (Snake l) =
-    mapM_ renderPos l
-    where renderPos :: V2 Int -> IO ()
-          renderPos p =
-            let (V2 x y) = fmap fromIntegral p      :: V2 GLfloat
-                (V2 w h) = fmap realToFrac gridSize :: V2 GLfloat in
-              renderPrimitive Quads $
-                mapM_ vertex $ Vertex2 <$> [(x * w    ) / fromIntegral renderWidth, (y * w    ) / fromIntegral renderHeight]
-                                       <*> [(x * w + w) / fromIntegral renderWidth, (y * h + h) / fromIntegral renderHeight]
+  render appinfo assets (Snake l) =
+    forM_ l $ \p -> do
+      print p
+      renderTexturedQuad (textures assets ! "white.png")
+                         (shaders  assets ! "game2d"   )
+                         appinfo
+                         (fmap fromIntegral p * blockSize)
+                         blockSize
 
 -- | Making the initial snake.
 makeSnake :: V2 Int -> Snake
 makeSnake p =
   Snake [ p
         , p - (V2 0 1)
+        , p - (V2 0 2)
         ]
 
 -- | Appending a value to the end of a @'Snake'@.
@@ -59,7 +60,7 @@ snake' s =
     let s' = moveSnake dir $ if add
                                then addBody s
                                else s in
-      s `seq` (s, snake' s')
+      s' `seq` (s, snake' s')
 
 -- | The wire to produce a @'Snake'@.
 snake :: Wire s () IO (V2 Int, Bool) Snake

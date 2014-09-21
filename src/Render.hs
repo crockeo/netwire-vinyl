@@ -70,6 +70,10 @@ renderTexturedQuad t sh i p s = do
   currentProgram $= Just (program sh)
   setUniforms sh i
   withVAO vao . withTextures2D [t] $ drawIndexedTris 2
+
+  deleteVertices verts
+  deleteObjectName eb
+  deleteVAO vao
   where indices = take 6 $ foldMap (flip map [0, 1, 2, 2, 1, 3] . (+)) [0, 4..]
 
 -- | A typeclass to define that a type can be rendered. Should only be used to

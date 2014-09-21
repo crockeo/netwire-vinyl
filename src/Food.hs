@@ -64,8 +64,8 @@ randomFoodType = do
 -- | Generating a random position.
 randomPosition :: IO (V2 Int)
 randomPosition = do
-  x <- randomIO
-  y <- randomIO
+  x <- randomRIO (0, gridWidth)
+  y <- randomRIO (0, gridHeight)
 
   return $ V2 x y
 

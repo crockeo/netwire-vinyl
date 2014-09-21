@@ -4,18 +4,33 @@ module Snake ( Snake
 
 --------------------
 -- Global Imports --
+import Graphics.Rendering.OpenGL
+import Prelude hiding ((.))
 import Control.Wire
 import Linear.V2
 
 -------------------
 -- Local Imports --
 import Config
+import Render
 
 ----------
 -- Code --
 
 -- | A type synonym for the snake. Just a list of positions within the grid.
 newtype Snake = Snake [V2 Int]
+
+-- | Allowing the @'Snake'@ to be rendered generically.
+instance Renderable Snake where
+  render _ _ (Snake l) =
+    mapM_ renderPos l
+    where renderPos :: V2 Int -> IO ()
+          renderPos p =
+            let (V2 x y) = fmap fromIntegral p      :: V2 GLfloat
+                (V2 w h) = fmap realToFrac gridSize :: V2 GLfloat in
+              renderPrimitive Quads $
+                mapM_ vertex $ Vertex2 <$> [(x * w    ) / fromIntegral renderWidth, (y * w    ) / fromIntegral renderHeight]
+                                       <*> [(x * w + w) / fromIntegral renderWidth, (y * h + h) / fromIntegral renderHeight]
 
 -- | Making the initial snake.
 makeSnake :: V2 Int -> Snake

@@ -57,5 +57,5 @@ blockSize :: V2 Float
 blockSize = V2 blockWidth blockHeight
 
 -- | The time between updating the game (in milliseconds).
-updateStep :: Float
+updateStep :: Real a => a
 updateStep = 1000

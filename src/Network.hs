@@ -6,6 +6,7 @@ import Graphics.Rendering.OpenGL
 import Graphics.GLUtil.Camera2D
 import Graphics.UI.GLFW as GLFW
 import Data.Vinyl.Universe
+import Control.Concurrent
 import Control.Wire
 import Data.IORef
 import Data.Vinyl
@@ -32,6 +33,41 @@ loadAssets = do
 
   loadShaderProgram "game2d"
 
+-- | The loop for updating the game.
+updateGame :: Session IO s -> Wire s e IO a World -> IORef World -> IORef Bool -> IO ()
+updateGame session wire worldRef closedRef = do
+  closed <- readIORef closedRef
+  if closed
+    then return ()
+    else do
+      (st, session') <- stepSession session
+      (wt, wire'   ) <- stepWire wire st $ Right undefined
+
+      case wt of
+        Left  _     -> writeIORef closedRef True
+        Right world -> do
+          writeIORef worldRef world
+          threadDelay 1000000
+          updateGame session' wire' worldRef closedRef
+
+-- | The loop for rendering the game.
+renderGame :: IORef (Maybe World) -> IORef Bool -> Assets -> Camera GLfloat -> IO ()
+renderGame worldRef closedRef assets cam = do
+  closed <- readIORef closedRef
+  if closed
+    then return ()
+    else do
+      mworld <- readIORef worldRef
+
+      case mworld of
+        Nothing    -> renderGame worldRef closedRef assets cam
+        Just world -> do
+          clear [ColorBuffer, DepthBuffer]
+          render (SField =: camMatrix cam) assets world
+          swapBuffers
+
+          renderGame worldRef closedRef assets cam
+
 -- | The backend to running the network.
 runNetwork' :: HasTime t s => IORef Bool -> Assets -> Camera GLfloat -> Session IO s -> Wire s e IO AppInfo World -> IO ()
 runNetwork' closedRef assets cam session wire = do
@@ -55,5 +91,9 @@ runNetwork' closedRef assets cam session wire = do
 --   to @'runNetwork''@ where all the work gets done.
 runNetwork :: IORef Bool -> IO ()
 runNetwork closedRef = do
-  assets <- performAssetLoads loadAssets
-  runNetwork' closedRef assets camera2D clockSession_ worldWire
+  worldRef <- newIORef Nothing
+  assets   <- performAssetLoads loadAssets
+
+  forkIO $ updateGame clockSession_ worldWire worldRef closedRef
+  threadDelay
+  renderGame worldRef closedRef assets camera2D

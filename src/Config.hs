@@ -56,6 +56,6 @@ blockHeight = (fromIntegral renderHeight) / (fromIntegral gridHeight)
 blockSize :: V2 Float
 blockSize = V2 blockWidth blockHeight
 
--- | The time between updating the game (in milliseconds).
+-- | The time between updating the game (in seconds).
 updateStep :: Real a => a
-updateStep = 1000
+updateStep = 1

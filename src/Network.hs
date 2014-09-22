@@ -6,7 +6,6 @@ import Graphics.Rendering.OpenGL
 import Graphics.GLUtil.Camera2D
 import Graphics.UI.GLFW as GLFW
 import Data.Vinyl.Universe
-import Control.Concurrent
 import Control.Wire
 import Data.IORef
 import Data.Vinyl
@@ -14,8 +13,10 @@ import Data.Vinyl
 -------------------
 -- Local Imports --
 import Assets
+import Config
 import Render
 import World
+import Step
 
 ----------
 -- Code --
@@ -33,47 +34,28 @@ loadAssets = do
 
   loadShaderProgram "game2d"
 
--- | The loop for updating the game.
-updateGame :: Session IO s -> Wire s e IO a World -> IORef (Maybe World) -> IORef Bool -> IO ()
-updateGame session wire worldRef closedRef = do
+-- | The backend to the @'runNetwork'@ function.
+runNetwork' :: (Fractional t, HasTime t s, Renderable b) => IORef Bool -> Assets -> Camera GLfloat -> Session IO s -> Wire s e IO a b -> IO ()
+runNetwork' closedRef assets cam session wire = do
   closed <- readIORef closedRef
   if closed
     then return ()
     else do
-      (st, session') <- stepSession session
-      (wt, wire'   ) <- stepWire wire st $ Right undefined
+      (ds, session') <- stepSession session
+      (dw, wire'   ) <- stepWire wire ds $ Right undefined
 
-      case wt of
-        Left  _     -> atomicWriteIORef closedRef True
-        Right world -> do
-          atomicWriteIORef worldRef $ Just world
-          threadDelay 1000000
-          updateGame session' wire' worldRef closedRef
-
--- | The loop for rendering the game.
-renderGame :: IORef (Maybe World) -> IORef Bool -> Assets -> Camera GLfloat -> IO ()
-renderGame worldRef closedRef assets cam = do
-  closed <- readIORef closedRef
-  if closed
-    then return ()
-    else do
-      mworld <- readIORef worldRef
-
-      case mworld of
-        Nothing    -> renderGame worldRef closedRef assets cam
-        Just world -> do
+      case dw of
+        Left  _   -> return ()
+        Right dw' -> do
           clear [ColorBuffer, DepthBuffer]
-          render (SField =: camMatrix cam) assets world
+          render (SField =: camMatrix cam) assets dw'
           swapBuffers
 
-          renderGame worldRef closedRef assets cam
+          runNetwork' closedRef assets cam session' wire'
 
 -- | The frontend of running the network. Really just passes everything along
 --   to @'runNetwork''@ where all the work gets done.
 runNetwork :: IORef Bool -> IO ()
 runNetwork closedRef = do
-  worldRef <- newIORef Nothing
-  assets   <- performAssetLoads loadAssets
-
-  forkIO $ updateGame clockSession_ worldWire worldRef closedRef
-  renderGame worldRef closedRef assets camera2D
+  assets <- performAssetLoads loadAssets
+  runNetwork' closedRef assets camera2D clockSession_ $ periodicWire updateStep worldWire

@@ -1,6 +1,4 @@
-module Step ( stepper
-            , periodicWire
-            ) where
+module Step where
 
 --------------------
 -- Global Imports --

@@ -27,8 +27,14 @@ instance Renderable World where
 -- | Checking if the current @'Food'@ and @'Snake'@ collide anywhere.
 overlaps :: Wire s () IO (Food, Snake) Bool
 overlaps =
-  mkSF_ $ (Food _ f, Snake l) =
+  mkSF_ $ \(Food _ f, Snake l) ->
     f `elem` l
+
+-- | Checking if the @'Snake'@'s head overlaps with any other part of itself.
+lose :: Wire s () IO Snake Bool
+lose =
+  mkSF_ $ \(Snake (h:b)) ->
+    h `elem` b
 
 -- | The world wire.
 worldWire :: Wire s () IO a World

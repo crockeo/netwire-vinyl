@@ -17,10 +17,10 @@ import Food
 -- Code --
 
 -- | The world data type.
-data World = World Food Snake
+data World = World Int Food Snake
 
 instance Renderable World where
-  render appinfo assets (World f s) = do
+  render appinfo assets (World _ f s) = do
     render appinfo assets f
     render appinfo assets s
 
@@ -36,12 +36,23 @@ lose =
   mkSF_ $ \(Snake (h:b)) ->
     h `elem` b
 
+-- | Handling incrementing the score.
+scoreHandler :: Int -> Wire s () IO (Food, Bool) Int
+scoreHandler score =
+  mkSFN $ \(Food t _, inc) ->
+    if not inc
+      then (score, scoreHandler score)
+      else
+        let score' = score + fromEnum t in
+          score' `seq` (score, scoreHandler score')
+
 -- | The world wire.
 worldWire :: Wire s () IO a World
 worldWire =
   proc _ -> do
-    rec f <- food           -< o
-        s <- snake (V2 0 1) -< (V2 0 1, o)
-        o <- overlaps       -< (f, s)
+    rec f  <- food           -< o
+        s  <- snake (V2 0 1) -< (V2 0 1, o)
+        o  <- overlaps       -< (f, s)
+        sc <- scoreHandler 0 -< (f, o)
 
-    returnA -< World f s
+    returnA -< World sc f s

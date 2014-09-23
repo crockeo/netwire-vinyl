@@ -70,5 +70,5 @@ snake' s =
       s' `seq` (s, snake' s')
 
 -- | The wire to produce a @'Snake'@.
-snake :: Wire s () IO (V2 Int, Bool) Snake
-snake = snake' $ makeSnake $ fmap (`div` 2) gridSize
+snake :: V2 Int -> Wire s () IO (V2 Int, Bool) Snake
+snake dir = (snake' $ makeSnake $ fmap (`div` 2) gridSize) . delay (dir, False)

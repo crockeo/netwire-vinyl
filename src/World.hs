@@ -40,7 +40,8 @@ lose =
 worldWire :: Wire s () IO a World
 worldWire =
   proc _ -> do
-    f <- food  -< False
-    s <- snake -< (V2 0 0, False)
+    rec f <- food           -< o
+        s <- snake (V2 0 1) -< (V2 0 1, o)
+        o <- overlaps       -< (f, s)
 
     returnA -< World f s

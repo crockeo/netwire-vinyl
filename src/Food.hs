@@ -6,6 +6,7 @@ module Food ( FoodType (..)
 
 --------------------
 -- Global Imports --
+import Prelude hiding ((.))
 import System.Random
 import Control.Wire
 import Linear.V2
@@ -93,6 +94,6 @@ food' f =
 -- | The front-end of the food.
 food :: Wire s () IO Bool Food
 food =
-  mkGenN $ \_ -> do
-    f <- randomFood
-    f `seq` return (Right f, food' f)
+  (mkGenN $ \_ -> do
+     f <- randomFood
+     f `seq` return (Right f, food' f)) . delay False

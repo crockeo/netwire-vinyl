@@ -24,6 +24,12 @@ instance Renderable World where
     render appinfo assets f
     render appinfo assets s
 
+-- | Checking if the current @'Food'@ and @'Snake'@ collide anywhere.
+overlaps :: Wire s () IO (Food, Snake) Bool
+overlaps =
+  mkSF_ $ (Food _ f, Snake l) =
+    f `elem` l
+
 -- | The world wire.
 worldWire :: Wire s () IO a World
 worldWire =

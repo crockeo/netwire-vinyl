@@ -57,5 +57,5 @@ blockSize :: V2 Float
 blockSize = V2 blockWidth blockHeight
 
 -- | The time between updating the game (in seconds).
-updateStep :: Real a => a
-updateStep = 1
+updateStep :: Fractional a => a
+updateStep = 0.3

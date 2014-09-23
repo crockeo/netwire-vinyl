@@ -47,10 +47,18 @@ addBody (Snake l) = Snake $ l ++ [last l]
 moveSnake :: V2 Int -> Snake -> Snake
 moveSnake _   (Snake []   ) = Snake []
 moveSnake dir (Snake (h:l)) =
-  Snake $ (h + dir) : moveSnake' h l
+  Snake $ (bound $ h + dir) : moveSnake' h l
   where moveSnake' :: V2 Int -> [V2 Int] -> [V2 Int]
         moveSnake' _ []     = []
         moveSnake' p (x:xs) = p : moveSnake' x xs
+
+        bound :: V2 Int -> V2 Int
+        bound (V2 x y)
+          | x < 0          = V2 gridWidth y
+          | x > gridWidth  = V2 0 y
+          | y < 0          = V2 x gridHeight
+          | y > gridHeight = V2 x 0
+          | otherwise      = V2 x y
 
 -- | The backend to the @'Snake'@ wire.
 snake' :: Snake -> Wire s () IO (V2 Int, Bool) Snake

@@ -23,7 +23,6 @@ data Direction = Upwards
                | Leftwards
                | Rightwards
                | NoDir
-  deriving (Eq)
 
 -- | Converting the @'Direction'@ to a @'V2' 'Int'@.
 toV2 :: Direction -> V2 Int

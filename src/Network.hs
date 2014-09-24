@@ -12,11 +12,9 @@ import Data.Vinyl
 
 -------------------
 -- Local Imports --
+import Manager
 import Assets
-import Config
 import Render
-import World
-import Step
 
 ----------
 -- Code --
@@ -58,4 +56,4 @@ runNetwork' closedRef assets cam session wire = do
 runNetwork :: IORef Bool -> IO ()
 runNetwork closedRef = do
   assets <- performAssetLoads loadAssets
-  runNetwork' closedRef assets camera2D clockSession_ $ periodicWire updateStep worldWire
+  runNetwork' closedRef assets camera2D clockSession_ manager

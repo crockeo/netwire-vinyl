@@ -47,11 +47,11 @@ scoreHandler score =
           score' `seq` (score, scoreHandler score')
 
 -- | The world wire.
-worldWire :: Wire s () IO a World
+worldWire :: Wire s () IO (V2 Int) World
 worldWire =
-  proc _ -> do
+  proc dir -> do
     rec f  <- food           -< o
-        s  <- snake (V2 0 1) -< (V2 0 1, o)
+        s  <- snake (V2 0 1) -< (dir, o)
         o  <- overlaps       -< (f, s)
         sc <- scoreHandler 0 -< (f, o)
 

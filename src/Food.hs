@@ -1,6 +1,5 @@
 module Food ( FoodType (..)
             , Food (..)
-            , score
             , food
             ) where
 
@@ -77,10 +76,6 @@ randomFood = do
   pos <- randomPosition
 
   return $ Food ft pos
-
--- | Getting the score from the @'FoodType'@. Equivalent to @'fromEnum'@.
-score :: FoodType -> Int
-score = fromEnum
 
 -- | The back end of the food.
 food' :: Food -> Wire s () IO Bool Food
